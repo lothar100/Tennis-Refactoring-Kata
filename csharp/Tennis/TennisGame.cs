@@ -4,8 +4,8 @@ namespace Tennis
 {
     class TennisGame : ITennisGame
     {
-        private (string Love, string All, string Fifteen, string Thirty, string Deuce, Func<int, string> WinForPlayer, Func<int,string> AdvantageForPlayer) _phrases =>
-                (Love: "Love", All: "All", Fifteen: "Fifteen", Thirty: "Thirty", Deuce: "Deuce",
+        private (string Love, string All, string Fifteen, string Thirty, string Forty, string Deuce, Func<int, string> WinForPlayer, Func<int,string> AdvantageForPlayer) _phrases =>
+                (Love: "Love", All: "All", Fifteen: "Fifteen", Thirty: "Thirty", Forty: "Forty", Deuce: "Deuce",
                 WinForPlayer: (int player) =>
                 {
                     return $"Win for {_players[player].Name}";
@@ -48,30 +48,8 @@ namespace Tennis
                 return endGamePhrases.Player(Player2.Num)[diff >= 2 ? 1 : 0];
             }
 
-            string score = "";
-            var tempScore = 0;
-            for (var i = 1; i < 3; i++)
-                {
-                    if (i == 1) tempScore = Player1.Score;
-                    else { score += "-"; tempScore = Player2.Score; }
-                    switch (tempScore)
-                    {
-                        case 0:
-                            score += "Love";
-                            break;
-                        case 1:
-                            score += "Fifteen";
-                            break;
-                        case 2:
-                            score += "Thirty";
-                            break;
-                        case 3:
-                            score += "Forty";
-                            break;
-                    }
-                }
-
-            return score;
+            string[] midGamePhrases = { _phrases.Love, _phrases.Fifteen, _phrases.Thirty, _phrases.Forty };
+            return join(midGamePhrases[Player1.Score], midGamePhrases[Player2.Score]);
         }
     }
 }
