@@ -6,8 +6,14 @@ namespace Tennis
     {
         private (string Love, string All, string Fifteen, string Thirty, string Deuce, Func<int, string> WinForPlayer, Func<int,string> AdvantageForPlayer) _phrases =>
                 (Love: "Love", All: "All", Fifteen: "Fifteen", Thirty: "Thirty", Deuce: "Deuce",
-                WinForPlayer: (int player) => $"WinForPlayer{_players[player].Name}",
-                AdvantageForPlayer: (int player) => $"Advantage ${_players[player].Name}");
+                WinForPlayer: (int player) =>
+                {
+                    return $"Win for {_players[player].Name}";
+                },
+                AdvantageForPlayer: (int player) =>
+                {
+                    return $"Advantage {_players[player].Name}";
+                });
         private Player[] _players;
         public Player Player1 => _players[0];
         public Player Player2 => _players[1];
@@ -23,38 +29,28 @@ namespace Tennis
 
         public string GetScore()
         {
+            Func<string, string, string> join = (string left, string right) => $"{left}-{right}";
+            // "Love-All", "Fifteen-All", "Thirty-All", "Deuce"
+            string[] equalScorePhrases = { join(_phrases.Love, _phrases.All), join(_phrases.Fifteen, _phrases.All), join(_phrases.Thirty, _phrases.All), _phrases.Deuce };
+            
+            if (Player1.Score == Player2.Score) return equalScorePhrases[Math.Min(Player1.Score, 3)];
+
+            // "Advantage playerX", "Win for playerX"
+            (Func<int, string[]> Player, int placeholder) endGamePhrases = (Player: (int playerX) =>  new string[]{ _phrases.AdvantageForPlayer(playerX), _phrases.WinForPlayer(playerX) } , placeholder: 0);
+
+            if(Player1.Score > Player2.Score && Player1.Score >= 4){
+                int diff = Player1.Score - Player2.Score;
+                return endGamePhrases.Player(Player1.Num)[diff >= 2 ? 1 : 0];
+            }
+
+            if(Player2.Score > Player1.Score && Player2.Score >= 4){
+                int diff = Player2.Score - Player1.Score;
+                return endGamePhrases.Player(Player2.Num)[diff >= 2 ? 1 : 0];
+            }
+
             string score = "";
             var tempScore = 0;
-            if (Player1.Score == Player2.Score)
-            {
-                switch (Player1.Score)
-                {
-                    case 0:
-                        score = "Love-All";
-                        break;
-                    case 1:
-                        score = "Fifteen-All";
-                        break;
-                    case 2:
-                        score = "Thirty-All";
-                        break;
-                    default:
-                        score = "Deuce";
-                        break;
-
-                }
-            }
-            else if (Player1.Score >= 4 || Player2.Score >= 4)
-            {
-                var minusResult = Player1.Score - Player2.Score;
-                if (minusResult == 1) score = "Advantage player1";
-                else if (minusResult == -1) score = "Advantage player2";
-                else if (minusResult >= 2) score = "Win for player1";
-                else score = "Win for player2";
-            }
-            else
-            {
-                for (var i = 1; i < 3; i++)
+            for (var i = 1; i < 3; i++)
                 {
                     if (i == 1) tempScore = Player1.Score;
                     else { score += "-"; tempScore = Player2.Score; }
@@ -74,7 +70,7 @@ namespace Tennis
                             break;
                     }
                 }
-            }
+
             return score;
         }
     }
