@@ -23,18 +23,30 @@ namespace Tennis
             if (Player1.Score == Player2.Score) return Player1.Phrases.EqualScorePhrase;
 
             // if a player has won or is close to winning
-            if(Player1.Score > Player2.Score && Player1.Score >= 4){
-                int diff = Player1.Score - Player2.Score;
-                return Player1.Phrases.EndGamePhrase[diff >= 2 ? 1 : 0];
-            }
-
-            if(Player2.Score > Player1.Score && Player2.Score >= 4){
-                int diff = Player2.Score - Player1.Score;
-                return Player2.Phrases.EndGamePhrase[diff >= 2 ? 1 : 0];
-            }
+            var check = EndGameCheck();
+            if(check.isEndGame) return check.result;
 
             // else it's mid game
             return Utils.join(Player1.Phrases.MidGamePhrase, Player2.Phrases.MidGamePhrase);
+        }
+
+        private (bool isEndGame, string result) EndGameCheck()
+        {
+            int max = Math.Max(Player1.Score, Player2.Score);
+            int min = Math.Min(Player1.Score, Player2.Score);
+            
+            if(max < 4) return (false, "");
+
+            int diff = max - min;
+            int index = diff >= 2 ? 1 : 0;
+            
+            return (
+                true,
+                Player1.Score > Player2.Score ?
+                Player1.Phrases.EndGamePhrase[index] :
+                Player2.Phrases.EndGamePhrase[index]
+            );
+
         }
     }
 }
